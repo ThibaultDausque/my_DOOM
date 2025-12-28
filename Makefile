@@ -1,12 +1,40 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 BIN = bin
+SRC = src
 SRCS = src/main.c
-INCLUDES = -Idoom.h -Ilib/SDL/include/SDL3
-OBJS = $(SRC:%.c=$(BIN)/%.o)
+INCLUDES = -Iincludes
+OBJS = $(SRCS:src/%.c=$(BIN)/%.o)
+FLAGS = -Wall -Wextra -Werror
+OS = $(shell uname -s)
 
 NAME = doom
 
 all:$(NAME)
 
+ifeq ($(OS), Linux)
+$(BIN)/%.o: $(SRC)/%.c
+	@mkdir -p $(BIN)
+	$(CC) $(FLAGS) $(INCLUDES) -Imlx_linux -c $< -o $@
+$(NAME): $(OBJS)
+	$(CC) $(OBJS) -Lmlx_linux -L/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
+else
+%.o: %.c
+	$(CC) -Wall -Wextra -Werror -Imlx -c $< -o $@
+$(NAME): $(OBJS)
+	$(CC) $(OBJS) -Lmlx -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+endif
 
+$(OBJS)/%.o: %.c
+	@cd lib/minilibx_linux && make -s
+
+clean:
+	rm -rf bin
+
+fclean: clean
+	rm -f $(NAME)
+
+re:
+	fclean all
+
+.PHONY: clean fclean all macos linux
