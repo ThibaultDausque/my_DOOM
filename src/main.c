@@ -1,38 +1,32 @@
-#include "doom.h"
+#include <doom.h>
 
-int	map_size(char *map)
+# define MAP_ERR "Fatal map error"
+
+static char**	parse_map(char *file)
 {
-	int		i = 0;
-	size_t	len = 1;
-	int		bytes;
-	unsigned int		fd;
-	
-	if (!(fd = open(map, O_RDONLY)))
+	unsigned int	fd;
+
+	if (!(fd = open(file, O_RDONLY)))
 	{
-		printf("open error\n");
+		printf("%s\n", MAP_ERR);
 		exit(0);
 	}
-	bytes = 1;
-	while (bytes > 0)
-	{
-		bytes = read(fd, map, len);
-		i++;
-	}
-	return i;
+	get_map_line(fd);
+	return NULL;
 }
 
 int	main(int ac, char **av)
 {
-	char	*map;
+	char	*file;
+	// map_t	map;
 
 	if (ac != 2)
 	{
 		printf("You need to put a .txt map\n");
 		exit(0);
 	}
-	map = av[1];
-	printf("lines: %d\n", map_size(map));
-	// parse_map();
+	file = av[1];
+	parse_map(file);
 	// raycasting();
 	return 0;
 }
