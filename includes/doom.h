@@ -3,8 +3,8 @@
 
 # define MAP_ERR "Fatal map error"
 
-# define SCREEN_WIDTH 384
-# define SCREEN_HEIGHT 216
+# define SCREEN_WIDTH 1080
+# define SCREEN_HEIGHT 720
 # define MAP_SIZE 1024
 
 # include <stdlib.h>
@@ -23,7 +23,7 @@ typedef struct map_s
     int     height;
     int     bytes;
     char    dir;
-    char    **map;
+    char    *map;
 }   map_t;
 
 // utils

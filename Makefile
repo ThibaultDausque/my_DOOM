@@ -4,6 +4,7 @@ BIN = bin
 SRC = src
 SRCS = src/main.c src/utils.c src/raycasting.c
 INCLUDES = -Iincludes -Ilib/minilibx-linux
+INCLUDES_MAC0S = -Iincludes -Ilib/minilibx_macos_opengl/minilibx_opengl_20191021
 OBJS = $(SRCS:src/%.c=$(BIN)/%.o)
 OS = $(shell uname -s)
 
@@ -19,10 +20,12 @@ $(NAME): $(OBJS)
 	@cd lib/minilibx-linux && make
 	@$(CC) $(CFLAGS) $(OBJS) -Llib/minilibx-linux -lmlx -lXext -lX11 -lm -lz -o $(NAME)
 else
-$(OBJS)/%.o: src/%.c
-	$(CC) -Wall -Wextra -Werror -Imlx -c $< -o $@ && cd lib/minilibx-linux && make
+$(BIN)/%.o: $(SRC)/%.c
+	@mkdir -p $(BIN)
+	$(CC) $(INCLUDES_MAC0S) -c $< -o $@
 $(NAME): $(OBJS)
-	$(CC) $(OBJS) -Lmlx -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+	@cd lib/minilibx_macos_opengl/minilibx_opengl_20191021 && make
+	$(CC) $(OBJS) -Llib/minilibx_macos_opengl/minilibx_opengl_20191021 -lmlx -framework OpenGL -framework AppKit -o $(NAME)
 endif
 
 

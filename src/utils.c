@@ -22,7 +22,7 @@ char* get_map_line(char *file)
         printf("%s\n", MAP_ERR);
         exit(0);
     }
-    r = read(fd, map, sizeof(map));
+    r = read(fd, map, MAP_SIZE);
     if (!r)
     {
         printf("%s\n", MAP_ERR);

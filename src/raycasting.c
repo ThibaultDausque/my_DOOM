@@ -1,5 +1,10 @@
 #include <doom.h>
 
+int	init_window()
+{
+
+}
+
 int raycasting()
 {
     void    *mlx;
