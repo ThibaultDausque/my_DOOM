@@ -12,6 +12,6 @@ int	main(int ac, char **av)
 	}
 	file = av[1];
 	map.map = get_map_line(file);
-	raycasting();
+	raycasting(&map);
 	return 0;
 }

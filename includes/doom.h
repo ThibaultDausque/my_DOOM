@@ -24,7 +24,17 @@ typedef struct map_s
     int     bytes;
     char    dir;
     char    *map;
+	void	*mlx;
 }   map_t;
+
+typedef struct data_s
+{
+	void	*img;
+	char	*addr;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}	data_t;
 
 // utils
 char* get_map_line(char* file);
