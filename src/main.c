@@ -11,7 +11,7 @@ int	main(int ac, char **av)
 		exit(0);
 	}
 	file = av[1];
-	map.map = get_map_line(file);
-	raycasting(&map);
+	// map.map = get_map_line(file);
+	init_window(&map);	
 	return 0;
 }

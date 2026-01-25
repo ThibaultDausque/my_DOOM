@@ -13,6 +13,7 @@
 # include <string.h>
 # include <fcntl.h>
 # include <mlx.h>
+# include <math.h>
 
 typedef float   f32;
 typedef double  f64;
@@ -25,6 +26,7 @@ typedef struct map_s
     char    dir;
     char    *map;
 	void	*mlx;
+	void	*mlx_win;
 }   map_t;
 
 typedef struct data_s
@@ -41,6 +43,6 @@ char* get_map_line(char* file);
 
 
 // raycasting
-int raycasting();
+int	init_window(map_t *map);
 
 #endif

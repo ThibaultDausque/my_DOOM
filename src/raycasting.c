@@ -36,18 +36,6 @@ int worldMap[MAP_WIDTH][MAP_HEIGHT] =
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-static int	init_window(data_t *data)
-{
-    void    *mlx;
-    void    *mlx_win;
-
-    mlx = mlx_init();
-    mlx_win = mlx_new_window(mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "Doom");
-    data->img = mlx_new_image(mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
-	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel, &data->line_length, &data->endian);
-	mlx_loop(mlx);
-    return 1;
-}
 
 static void	mlx_put_pxl(data_t *data, int x, int y, int color)
 {
@@ -57,9 +45,9 @@ static void	mlx_put_pxl(data_t *data, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-int raycasting()
+static int raycasting(data_t *data)
 {
-    f64     posX;
+	f64     posX;
     f64     posY;
     f64     dirX;
     f64     dirY;
@@ -68,97 +56,114 @@ int raycasting()
     f64     sideDistX;
     f64     sideDistY;
 	f64		perpWallDist;
-
+	
     int     mapX;
     int     mapY;
-
+	
     f64     deltaDistX;
     f64     deltaDistY;
-
+	
 	// wall hit
 	int		hit;
 	int		side;
 	int		wall_height;
-
+	
 	int		drawStart;
 	int		drawEnd;
-
-	data_t	data;
-
-    init_window(&data);
-    posX = 22;
+	
+    posX = 6;
     posY = 12;
-    dirX = 1;
+    dirX = -1;
     dirY = 0;
     planeX = 0;
     planeY = 0.66;
     mapX = (int)posX;
     mapY = (int)posY;
-
+	hit = 0;
+	
 	f64		stepX;
 	f64		stepY;
+	
 
-    for (;;)
-    {
-        for (int x = 0; x < SCREEN_WIDTH; x++)
-        {
-            f64		camX = 2 * x / (f64)SCREEN_WIDTH - 1;
-            f64		rayDirX = dirX + planeX * camX;
-            f64		rayDirY = dirY + planeY * camX;
-			if (rayDirX != 0) deltaDistX = abs(1 / (int)rayDirX);
-			if (rayDirY != 0) deltaDistY = abs(1 / (int)rayDirY);
-			
-			if (rayDirX < 0)
-			{
-				stepX = -1;
-				sideDistX = (posX - mapX) * deltaDistX;
-			}
-			else
-			{
-				stepX = 1;
-				sideDistX = (mapX + 1.0 - posX) * deltaDistX;
-			}
-			if (rayDirY < 0)
-			{
-				stepY = -1;
-				sideDistY = (posY - mapY) * deltaDistY;
-			}
-			else
-			{
-				stepY = 1;
-				sideDistY = (mapY + 1.0 - posY) * deltaDistY;
-			}
-
-			while (!hit)
-			{
-				if (sideDistX < sideDistY)
-				{
-					sideDistX += deltaDistX;
-					mapX += stepX;
-					side = 0;
-				}
-				else
-				{
-					sideDistY += deltaDistY;
-					mapY += stepY;
-					side = 1;
-				}
-
-				if (worldMap[mapX][mapY] > 0) hit = 1;
-			}
-			if (!side)
-				perpWallDist = (sideDistX - deltaDistX);
-			else
-				perpWallDist = (sideDistY - deltaDistX);
-			wall_height = SCREEN_HEIGHT / (int)perpWallDist;
-
-			drawStart = -wall_height / 2 + SCREEN_HEIGHT / 2;
-			if (drawStart < 0) drawStart = 0;
-
-			drawEnd = wall_height / 2 + SCREEN_HEIGHT / 2;
-			if (drawEnd >= SCREEN_HEIGHT) drawEnd = SCREEN_HEIGHT - 1;
-			mlx_put_pxl(&data, x, drawEnd - drawStart, 0x00FF0000);
+	for (int x = 0; x < SCREEN_WIDTH; x++)
+	{
+		f64		camX = (2 * x) / ((double)SCREEN_WIDTH - 1);
+		f64		rayDirX = dirX + (planeX * camX);
+		f64		rayDirY = dirY + (planeY * camX);
+		deltaDistX = (rayDirX == 0) ? 1e30 : fabs(1 / rayDirX);
+		deltaDistY = (rayDirY == 0) ? 1e30 : fabs(1 / rayDirY);
+		printf("x: %d", x);
+		if (rayDirX < 0)
+		{
+			stepX = -1;
+			sideDistX = (posX - mapX) * deltaDistX;
 		}
-    }
+		else
+		{
+			stepX = 1;
+			sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+		}
+		if (rayDirY < 0)
+		{
+			stepY = -1;
+			sideDistY = (posY - mapY) * deltaDistY;
+		}
+		else
+		{
+			stepY = 1;
+			sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+		}
+
+		while (!hit)
+		{
+			if (sideDistX < sideDistY)
+			{
+				sideDistX += deltaDistX;
+				mapX += stepX;
+				side = 0;
+			}
+			else
+			{
+				sideDistY += deltaDistY;
+				mapY += stepY;
+				side = 1;
+			}
+			
+			if (worldMap[mapX][mapY] > 0) hit = 1;
+		}
+		if (!side)
+			perpWallDist = (sideDistX - deltaDistX);
+		else
+			perpWallDist = (sideDistY - deltaDistX);
+		wall_height = SCREEN_HEIGHT / (int)perpWallDist;
+		
+		drawStart = -wall_height / 2 + SCREEN_HEIGHT / 2;
+		if (drawStart < 0) drawStart = 0;
+		
+		drawEnd = wall_height / 2 + SCREEN_HEIGHT / 2;
+		if (drawEnd >= SCREEN_HEIGHT) drawEnd = SCREEN_HEIGHT - 1;
+
+		int		start = drawStart;
+		int		end = drawEnd;
+		while (start < end)
+			mlx_put_pxl(data, x, start++, 0x00FF0000);
+	}
     return 1;
+}
+
+int	init_window(map_t *map)
+{
+	void    *mlx;
+	void    *mlx_win;
+	data_t	data;
+
+	(void) map;
+	mlx = mlx_init();
+	mlx_win = mlx_new_window(mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "Doom");
+	data.img = mlx_new_image(mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
+	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
+	raycasting(&data);
+	mlx_put_image_to_window(mlx, mlx_win, data.img, 0, 0);
+	mlx_loop(mlx);
+	return 1;
 }
