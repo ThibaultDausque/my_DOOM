@@ -6,6 +6,14 @@
 # define SCREEN_WIDTH 1080
 # define SCREEN_HEIGHT 720
 # define MAP_SIZE 1024
+# define RGB_RED 0x00FF0000
+# define RGB_GREEN 0x0035E400
+# define RGB_BLUE 0x000080FF
+# define RGB_YELLOW 0x00FFFF00
+
+# define KEY_PRESS 2
+# define KEY_RLSE 3
+
 
 # include <stdlib.h>
 # include <stdio.h>

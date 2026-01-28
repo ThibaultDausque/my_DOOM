@@ -45,6 +45,11 @@ static void	mlx_put_pxl(data_t *data, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
+// static int	move_cam(data_t *data)
+// {
+
+// }
+
 static int raycasting(data_t *data)
 {
 	f64     posX;
@@ -67,12 +72,14 @@ static int raycasting(data_t *data)
 	int		hit;
 	int		side;
 	int		wall_height;
+	int		colornb;
+	int		rgb;
 	
 	int		drawStart;
 	int		drawEnd;
 	
-    posX = 6;
-    posY = 12;
+    posX = 12;
+    posY = 20;
     dirX = -1;
     dirY = 0;
     planeX = 0;
@@ -92,7 +99,6 @@ static int raycasting(data_t *data)
 		f64		rayDirY = dirY + (planeY * camX);
 		deltaDistX = (rayDirX == 0) ? 1e30 : fabs(1 / rayDirX);
 		deltaDistY = (rayDirY == 0) ? 1e30 : fabs(1 / rayDirY);
-		printf("x: %d", x);
 		if (rayDirX < 0)
 		{
 			stepX = -1;
@@ -129,7 +135,16 @@ static int raycasting(data_t *data)
 				side = 1;
 			}
 			
-			if (worldMap[mapX][mapY] > 0) hit = 1;
+			colornb = worldMap[mapX][mapY];
+			if (colornb > 0) hit = 1;
+			if (colornb == 1)
+				rgb = RGB_RED;
+			else if (colornb == 2)
+				rgb = RGB_GREEN;
+			else if (colornb == 3)
+				rgb = RGB_BLUE;
+			else if (colornb == 4)
+				rgb = RGB_YELLOW;
 		}
 		if (!side)
 			perpWallDist = (sideDistX - deltaDistX);
@@ -146,9 +161,31 @@ static int raycasting(data_t *data)
 		int		start = drawStart;
 		int		end = drawEnd;
 		while (start < end)
-			mlx_put_pxl(data, x, start++, 0x00FF0000);
+			mlx_put_pxl(data, x, start++, rgb);
 	}
     return 1;
+}
+
+int	key_hook(int keycode, data_t *data)
+{
+	(void) data;
+	if (keycode == 119)
+	{
+
+	}
+	else if (keycode == 115)
+	{
+
+	}
+	else if (keycode == 97)
+	{
+
+	}
+	else if (keycode == 100)
+	{
+		
+	}
+	return 0;
 }
 
 int	init_window(map_t *map)
@@ -164,6 +201,7 @@ int	init_window(map_t *map)
 	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
 	raycasting(&data);
 	mlx_put_image_to_window(mlx, mlx_win, data.img, 0, 0);
+	mlx_key_hook(mlx_win, key_hook, &data);
 	mlx_loop(mlx);
 	return 1;
 }
