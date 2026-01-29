@@ -35,6 +35,7 @@ typedef struct map_s
     char    *map;
 	void	*mlx;
 	void	*mlx_win;
+
 }   map_t;
 
 typedef struct data_s
@@ -44,13 +45,18 @@ typedef struct data_s
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
+	f64		posX;
+	f64		dirX;
+	f64		posY;
+	f64		dirY;
+	f64		planeX;
+	f64		planeY;
 }	data_t;
 
 // utils
 char* get_map_line(char* file);
 
-
 // raycasting
-int	init_window(map_t *map);
+int	init_window(data_t data);
 
 #endif

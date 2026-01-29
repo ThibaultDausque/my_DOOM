@@ -36,7 +36,6 @@ int worldMap[MAP_WIDTH][MAP_HEIGHT] =
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-
 static void	mlx_put_pxl(data_t *data, int x, int y, int color)
 {
 	char*	dst;
@@ -52,12 +51,6 @@ static void	mlx_put_pxl(data_t *data, int x, int y, int color)
 
 static int raycasting(data_t *data)
 {
-	f64     posX;
-    f64     posY;
-    f64     dirX;
-    f64     dirY;
-    f64     planeX;
-    f64     planeY;     // FOV is 2 * atan(0.66/1.0)=66° specific to FPS
     f64     sideDistX;
     f64     sideDistY;
 	f64		perpWallDist;
@@ -78,46 +71,41 @@ static int raycasting(data_t *data)
 	int		drawStart;
 	int		drawEnd;
 	
-    posX = 12;
-    posY = 20;
-    dirX = -1;
-    dirY = 0;
-    planeX = 0;
-    planeY = 0.66;
-    mapX = (int)posX;
-    mapY = (int)posY;
+    mapX = (int)data->posX;
+    mapY = (int)data->posY;
 	hit = 0;
-	
+
+	printf("mapX: %d\n", mapX);
+
 	f64		stepX;
 	f64		stepY;
-	
 
 	for (int x = 0; x < SCREEN_WIDTH; x++)
 	{
 		f64		camX = (2 * x) / ((double)SCREEN_WIDTH - 1);
-		f64		rayDirX = dirX + (planeX * camX);
-		f64		rayDirY = dirY + (planeY * camX);
+		f64		rayDirX = data->dirX + (data->planeX * camX);
+		f64		rayDirY = data->dirY + (data->planeY * camX);
 		deltaDistX = (rayDirX == 0) ? 1e30 : fabs(1 / rayDirX);
 		deltaDistY = (rayDirY == 0) ? 1e30 : fabs(1 / rayDirY);
 		if (rayDirX < 0)
 		{
 			stepX = -1;
-			sideDistX = (posX - mapX) * deltaDistX;
+			sideDistX = (data->posX - mapX) * deltaDistX;
 		}
 		else
 		{
 			stepX = 1;
-			sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+			sideDistX = (mapX + 1.0 - data->posX) * deltaDistX;
 		}
 		if (rayDirY < 0)
 		{
 			stepY = -1;
-			sideDistY = (posY - mapY) * deltaDistY;
+			sideDistY = (data->posY - mapY) * deltaDistY;
 		}
 		else
 		{
 			stepY = 1;
-			sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+			sideDistY = (mapY + 1.0 - data->posY) * deltaDistY;
 		}
 
 		while (!hit)
@@ -166,42 +154,67 @@ static int raycasting(data_t *data)
     return 1;
 }
 
-int	key_hook(int keycode, data_t *data)
+int	key_hook(int keycode, data_t data)
 {
-	(void) data;
-	if (keycode == 119)
-	{
+	f64		oldDirX;
+	f64		oldPlaneX;
+	f64		v = 0.5; // move speed
+	f64		r = 0.5; // rotation speed
 
-	}
-	else if (keycode == 115)
+	raycasting(&data);
+	if (keycode == 119) // straight
 	{
+		printf("w\n");
+		if (worldMap[(int)(data.posX + data.dirX*v)][(int)data.posY] == 0)
+			data.posX += data.dirX * v;
+		if (worldMap[(int)(data.posX)][(int)(data.posY + data.dirY*v)] == 0)
+			data.posY += data.dirY * v;
+		printf("posX: %d\n", (int)data.posX);
+		printf("posY: %d\n", (int)data.posY);
+	}
+	else if (keycode == 115) // back
+	{
+		printf("s\n");
+		if (!worldMap[(int)(data.posX - data.dirX*v)][(int)data.posY])
+			data.posX -= data.dirX * v;
+		if (!worldMap[(int)data.posX][(int)(data.posY - data.dirY*v)])
+			data.posX -= data.dirX * v;
+	}
+	else if (keycode == 100) // right
+	{
+		printf("d\n");
+		oldDirX = data.dirX;
+		data.dirX = data.dirX * cos(-r) - data.dirY * sin(-r);
+		data.dirY = oldDirX * sin(-r) + data.dirY * cos(-r);
+		oldPlaneX = data.planeX;
+		data.planeX = data.planeX * cos(-r) - data.planeY * sin(-r);
+		data.planeY = oldPlaneX * sin(-r) + data.planeY * cos(-r);
+	}
+	else if (keycode == 97) // left
+	{
+		printf("a\n");
+		oldDirX = data.dirX;
+		data.dirX = data.dirX * cos(r) - data.dirY * sin(r);
+		data.dirY = oldDirX * sin(r) + data.dirY * cos(r);
+		oldPlaneX = data.planeX;
+		data.planeX = data.planeX * cos(r) - data.planeY * sin(r);
+		data.planeY = oldPlaneX * sin(-r) + data.planeY * cos(-r);
 
-	}
-	else if (keycode == 97)
-	{
-
-	}
-	else if (keycode == 100)
-	{
-		
 	}
 	return 0;
 }
 
-int	init_window(map_t *map)
+int	init_window(data_t data)
 {
 	void    *mlx;
 	void    *mlx_win;
-	data_t	data;
 
-	(void) map;
 	mlx = mlx_init();
 	mlx_win = mlx_new_window(mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "Doom");
 	data.img = mlx_new_image(mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
 	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
-	raycasting(&data);
-	mlx_put_image_to_window(mlx, mlx_win, data.img, 0, 0);
 	mlx_key_hook(mlx_win, key_hook, &data);
+	mlx_put_image_to_window(mlx, mlx_win, data.img, 0, 0);
 	mlx_loop(mlx);
 	return 1;
 }
