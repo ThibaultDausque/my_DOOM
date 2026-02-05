@@ -153,7 +153,7 @@ int	key_hook(int keycode, map_t *map)
 	f64		v = 1; // move speed
 	f64		r = 0.5; // rotation speed
 
-	if (keycode == 119) // straight
+	if (keycode == W_KEY) // straight
 	{
 		if (worldMap[(int)(map->posX + map->dirX*v)][(int)map->posY] == 0)
 			map->posX += map->dirX * v;
@@ -164,15 +164,16 @@ int	key_hook(int keycode, map_t *map)
 			map->posY += map->dirY * v;
 		else
 			map->posY -= map->dirY * v;
+		printf("W key pressed\n");
 	}
-	else if (keycode == 115) // back
+	else if (keycode == S_KEY) // back
 	{
 		if (!worldMap[(int)(map->posX - map->dirX*v)][(int)map->posY])
 			map->posX -= map->dirX * v;
 		if (!worldMap[(int)map->posX][(int)(map->posY - map->dirY*v)])
 			map->posX -= map->dirX * v;
 	}
-	else if (keycode == 100) // right
+	else if (keycode == D_KEY) // right
 	{
 		oldDirX = map->dirX;
 		map->dirX = map->dirX * cos(-r) - map->dirY * sin(-r);
@@ -182,7 +183,7 @@ int	key_hook(int keycode, map_t *map)
 		map->planeY = oldPlaneX * sin(-r) + map->planeY * cos(-r);
 		printf("dir X: %f\n", map->dirX);
 	}
-	else if (keycode == 97) // left
+	else if (keycode == A_KEY) // left
 	{
 		oldDirX = map->dirX;
 		map->dirX = map->dirX * cos(r) - map->dirY * sin(r);
@@ -199,9 +200,13 @@ int	init_window(data_t *data)
 {
 	data->mlx = mlx_init();
 	data->mlx_win = mlx_new_window(data->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "Doom");
-
-	mlx_key_hook(data->mlx_win, key_hook, &map);
+	#ifndef __APPLE__
+		mlx_hook(data->mlx_win, KEY_PRESS, 0, key_hook, &map);
+	#else
+		mlx_key_hook(data->mlx_win, key_hook, &map);
+	#endif
 	mlx_loop_hook(data->mlx, raycasting, data);
+	mlx_hook(data->mlx_win, 2, 1L<<0, ft_close, data);
 	mlx_loop(data->mlx);
 	return 1;
 }

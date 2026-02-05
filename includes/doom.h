@@ -23,6 +23,18 @@
 # include <mlx.h>
 # include <math.h>
 
+#ifndef __APPLE__
+# define W_KEY 13
+# define A_KEY 0
+# define S_KEY 1
+# define D_KEY 2
+#else
+# define W_KEY 119
+# define A_KEY 97
+# define S_KEY 115
+# define D_KEY 100
+#endif
+
 typedef float   f32;
 typedef double  f64;
 
@@ -54,6 +66,7 @@ typedef struct data_s
 
 // utils
 char*	get_map_line(char* file);
+int		ft_close(int keycode, data_t *data);
 
 // raycasting
 int		init_window(data_t *data);

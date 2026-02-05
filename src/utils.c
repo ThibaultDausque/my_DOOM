@@ -31,3 +31,9 @@ char* get_map_line(char *file)
     printf("line:\n%s", map);
     return map;
 }
+
+int	ft_close(int keycode, data_t *data)
+{
+	mlx_destroy_window(data->mlx, data->mlx_win);
+	return 0;
+}
