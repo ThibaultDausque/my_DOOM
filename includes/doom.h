@@ -23,7 +23,7 @@
 # include <mlx.h>
 # include <math.h>
 
-#ifndef __APPLE__
+#ifdef __APPLE__
 # define W_KEY 13
 # define A_KEY 0
 # define S_KEY 1
@@ -66,7 +66,7 @@ typedef struct data_s
 
 // utils
 char*	get_map_line(char* file);
-int		ft_close(int keycode, data_t *data);
+int		ft_close(data_t *data);
 
 // raycasting
 int		init_window(data_t *data);

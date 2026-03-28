@@ -139,7 +139,7 @@ static int raycasting(data_t *data)
 
 		int		start = drawStart;
 		int		end = drawEnd;
-		while (start < end) mlx_put_pxl(data, x, start++, RGB_RED);
+		while (start < end) mlx_put_pxl(data, x, start++, rgb);
 	}
 	mlx_put_image_to_window(data->mlx, data->mlx_win, data->img, 0, 0);
 	mlx_destroy_image(data->mlx, data->img);
@@ -150,7 +150,7 @@ int	key_hook(int keycode, map_t *map)
 {
 	f64		oldDirX;
 	f64		oldPlaneX;
-	f64		v = 1; // move speed
+	f64		v = 0.5; // move speed
 	f64		r = 0.5; // rotation speed
 
 	if (keycode == W_KEY) // straight
@@ -200,13 +200,16 @@ int	init_window(data_t *data)
 {
 	data->mlx = mlx_init();
 	data->mlx_win = mlx_new_window(data->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "Doom");
-	#ifndef __APPLE__
+	#ifdef __APPLE__
 		mlx_hook(data->mlx_win, KEY_PRESS, 0, key_hook, &map);
 	#else
 		mlx_key_hook(data->mlx_win, key_hook, &map);
 	#endif
+	mlx_hook(data->mlx_win, KEY_PRESS, 0, key_hook, &map);
+
 	mlx_loop_hook(data->mlx, raycasting, data);
-	mlx_hook(data->mlx_win, 2, 1L<<0, ft_close, data);
+	//doesn't work on MACOS
+	//mlx_hook(data->mlx_win, 2, 1L<<0, ft_close, data);
 	mlx_loop(data->mlx);
 	return 1;
 }

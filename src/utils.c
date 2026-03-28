@@ -32,7 +32,7 @@ char* get_map_line(char *file)
     return map;
 }
 
-int	ft_close(int keycode, data_t *data)
+int	ft_close(data_t *data)
 {
 	mlx_destroy_window(data->mlx, data->mlx_win);
 	return 0;
