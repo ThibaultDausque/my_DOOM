@@ -64,9 +64,19 @@ typedef struct data_s
 	void	*mlx_win;
 }	data_t;
 
+typedef struct keys_s 
+{
+	int		w;
+	int		a;
+	int		s;
+	int		d;
+}	keys_t;
+
 // utils
 char*	get_map_line(char* file);
 int		ft_close(data_t *data);
+void	key_press(int keycode, keys_t* keys);
+void	key_rlse(int keycode, keys_t* keys);
 
 // raycasting
 int		init_window(data_t *data);

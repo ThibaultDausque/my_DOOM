@@ -5,6 +5,30 @@
 
 // }
 
+void    init_keys(keys_t* keys)
+{
+    keys->w = 0;
+    keys->a = 0;
+    keys->s = 0;
+    keys->d = 0;
+}
+
+void key_press(int keycode, keys_t* keys)
+{
+    if (keycode == W_KEY) keys->w = 1;
+    if (keycode == A_KEY) keys->a = 1;
+    if (keycode == S_KEY) keys->s = 1;
+    if (keycode == D_KEY) keys->d = 1;
+}
+
+void key_rlse(int keycode, keys_t* keys)
+{
+    if (keycode == W_KEY) keys->w = 0;
+    if (keycode == A_KEY) keys->a = 0;
+    if (keycode == S_KEY) keys->s = 0;
+    if (keycode == D_KEY) keys->d = 0;
+}
+
 char* get_map_line(char *file)
 {
     unsigned int    fd;

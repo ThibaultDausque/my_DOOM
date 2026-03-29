@@ -12,8 +12,8 @@ map_t	map;
 
 void	init_game(data_t *data)
 {
-	map.posX = 3;
-    map.posY = 3;
+	map.posX = 2;
+    map.posY = 2;
     map.dirX = -1;
     map.dirY = 0;
     map.planeX = 0;
@@ -53,15 +53,10 @@ static int raycasting(data_t *data)
 	int		hit;
 	int		side;
 	int		wall_height;
-	int		colornb;
 	int		rgb;
 	
 	int		drawStart;
 	int		drawEnd;
-	
-    mapX = (int)map.posX;
-    mapY = (int)map.posY;
-	hit = 0;
 
 	f64		stepX;
 	f64		stepY;
@@ -71,10 +66,12 @@ static int raycasting(data_t *data)
 	
 	for (int x = 0; x < SCREEN_WIDTH; x++)
 	{
-		f64		camX = (2 * x) / ((double)SCREEN_WIDTH - 1);
-		f64		rayDirX = map.dirX + (map.planeX * camX);
-		f64		rayDirY = map.dirY + (map.planeY * camX);
-
+		f64		camX = (2 * x / (double)SCREEN_WIDTH) - 1;
+		f64		rayDirX = map.dirX + map.planeX * camX;
+		f64		rayDirY = map.dirY + map.planeY * camX;
+    	
+		mapX = (int)map.posX;
+    	mapY = (int)map.posY;
 		deltaDistX = (rayDirX == 0) ? 1e30 : fabs(1 / rayDirX);
 		deltaDistY = (rayDirY == 0) ? 1e30 : fabs(1 / rayDirY);
 
@@ -99,6 +96,7 @@ static int raycasting(data_t *data)
 			sideDistY = (mapY + 1.0 - map.posY) * deltaDistY;
 		}
 
+		hit = 0;
 		while (!hit)
 		{
 			if (sideDistX < sideDistY)
@@ -114,8 +112,7 @@ static int raycasting(data_t *data)
 				side = 1;
 			}
 			
-			colornb = worldMap[mapX][mapY];
-			if (colornb == 1) hit = 1;
+			if (worldMap[mapY][mapX] > 0) hit = 1;
 			rgb = RGB_RED;
 			// else if (colornb == 2)
 			// 	rgb = RGB_GREEN;
@@ -124,12 +121,14 @@ static int raycasting(data_t *data)
 			// else if (colornb == 4)
 			// 	rgb = RGB_YELLOW;
 		}
-		if (side == 0) 
+		
+		if (side == 0)
 			perpWallDist = (sideDistX - deltaDistX);
 		else
 			perpWallDist = (sideDistY - deltaDistY);
-
-		wall_height = SCREEN_HEIGHT / (int)perpWallDist;
+		
+		if (perpWallDist > 0)
+			wall_height = (int)(SCREEN_HEIGHT / perpWallDist);
 		
 		drawStart = (-wall_height / 2) + (SCREEN_HEIGHT / 2);
 		if (drawStart < 0) drawStart = 0;
@@ -146,32 +145,30 @@ static int raycasting(data_t *data)
 	return 1;
 }
 
-int	key_hook(int keycode, map_t *map)
+int	key_hook(int keycode, map_t *map, keys_t *keys)
 {
 	f64		oldDirX;
 	f64		oldPlaneX;
-	f64		v = 0.5; // move speed
-	f64		r = 0.5; // rotation speed
+	f64		v = 0.05; // move speed
+	f64		r = 0.05; // rotation speed
+	//f64		mapX_max = 3;
+	//f64		mapY_max = 3;
 
 	if (keycode == W_KEY) // straight
 	{
 		if (worldMap[(int)(map->posX + map->dirX*v)][(int)map->posY] == 0)
 			map->posX += map->dirX * v;
-		else
-			map->posX -= map->dirX * v;
-		printf("dir X: %f\n", map->dirX);
+		
 		if (worldMap[(int)(map->posX)][(int)(map->posY + map->dirY*v)] == 0)
 			map->posY += map->dirY * v;
-		else
-			map->posY -= map->dirY * v;
-		printf("W key pressed\n");
 	}
 	else if (keycode == S_KEY) // back
 	{
 		if (!worldMap[(int)(map->posX - map->dirX*v)][(int)map->posY])
 			map->posX -= map->dirX * v;
+
 		if (!worldMap[(int)map->posX][(int)(map->posY - map->dirY*v)])
-			map->posX -= map->dirX * v;
+			map->posY -= map->dirY * v;
 	}
 	else if (keycode == D_KEY) // right
 	{
@@ -181,7 +178,6 @@ int	key_hook(int keycode, map_t *map)
 		oldPlaneX = map->planeX;
 		map->planeX = map->planeX * cos(-r) - map->planeY * sin(-r);
 		map->planeY = oldPlaneX * sin(-r) + map->planeY * cos(-r);
-		printf("dir X: %f\n", map->dirX);
 	}
 	else if (keycode == A_KEY) // left
 	{
@@ -191,8 +187,14 @@ int	key_hook(int keycode, map_t *map)
 		oldPlaneX = map->planeX;
 		map->planeX = map->planeX * cos(r) - map->planeY * sin(r);
 		map->planeY = oldPlaneX * sin(r) + map->planeY * cos(r);
-		printf("dir X: %f\n", map->dirX);
 	}
+
+	printf("dir X: %f\n", map->dirX);
+	printf("dir Y: %f\n", map->dirY);
+
+	printf("pos X: %f\n", map->posX);
+	printf("pos Y: %f\n", map->posY);
+
 	return 0;
 }
 
@@ -208,7 +210,6 @@ int	init_window(data_t *data)
 	mlx_hook(data->mlx_win, KEY_PRESS, 0, key_hook, &map);
 
 	mlx_loop_hook(data->mlx, raycasting, data);
-	//doesn't work on MACOS
 	//mlx_hook(data->mlx_win, 2, 1L<<0, ft_close, data);
 	mlx_loop(data->mlx);
 	return 1;
