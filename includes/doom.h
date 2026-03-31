@@ -10,10 +10,11 @@
 # define RGB_GREEN 0x0035E400
 # define RGB_BLUE 0x000080FF
 # define RGB_YELLOW 0x00FFFF00
+# define RGB_CEILING 0xCCCCCC
+# define RGB_GROUND 0x333333
 
 # define KEY_PRESS 2
 # define KEY_RLSE 3
-
 
 # include <stdlib.h>
 # include <stdio.h>

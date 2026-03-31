@@ -139,7 +139,10 @@ static int raycasting(data_t *data)
 
 		int		start = drawStart;
 		int		end = drawEnd;
+		int		top = 0;
+		while (top < start) mlx_put_pxl(data, x, top++, RGB_CEILING);
 		while (start < end) mlx_put_pxl(data, x, start++, rgb);
+		while (end < SCREEN_HEIGHT) mlx_put_pxl(data, x, end++, RGB_GROUND);
 	}
 	key_hook(&map, &keys);
 	mlx_put_image_to_window(data->mlx, data->mlx_win, data->img, 0, 0);
@@ -205,14 +208,8 @@ int	init_window(data_t *data)
 	init_keys(&keys);
 	data->mlx = mlx_init();
 	data->mlx_win = mlx_new_window(data->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "Doom");
-
-	#ifdef __APPLE__
-		mlx_hook(data->mlx_win, KEY_PRESS, 0, key_hook, &map);
-	#else
-		mlx_hook(data->mlx_win, KEY_PRESS, 1L<<0, key_press, &keys);
-		mlx_hook(data->mlx_win, KEY_RLSE, 1L<<1, key_rlse, &keys);
-	#endif
-
+	mlx_hook(data->mlx_win, KEY_PRESS, 1L<<0, key_press, &keys);
+	mlx_hook(data->mlx_win, KEY_RLSE, 1L<<1, key_rlse, &keys);
 	mlx_loop_hook(data->mlx, raycasting, data);
 	mlx_loop(data->mlx);
 
