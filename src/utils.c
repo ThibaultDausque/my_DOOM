@@ -13,20 +13,22 @@ void    init_keys(keys_t* keys)
     keys->d = 0;
 }
 
-void key_press(int keycode, keys_t* keys)
+int key_press(int keycode, keys_t* keys)
 {
     if (keycode == W_KEY) keys->w = 1;
     if (keycode == A_KEY) keys->a = 1;
     if (keycode == S_KEY) keys->s = 1;
     if (keycode == D_KEY) keys->d = 1;
+    return keycode;
 }
 
-void key_rlse(int keycode, keys_t* keys)
+int key_rlse(int keycode, keys_t* keys)
 {
     if (keycode == W_KEY) keys->w = 0;
     if (keycode == A_KEY) keys->a = 0;
     if (keycode == S_KEY) keys->s = 0;
     if (keycode == D_KEY) keys->d = 0;
+    return keycode;
 }
 
 char* get_map_line(char *file)
@@ -56,8 +58,8 @@ char* get_map_line(char *file)
     return map;
 }
 
-int	ft_close(data_t *data)
+void ft_close(int code, data_t *data)
 {
-	mlx_destroy_window(data->mlx, data->mlx_win);
-	return 0;
+	mlx_destroy_window(&data->mlx, &data->mlx_win);
+	exit(code);
 }

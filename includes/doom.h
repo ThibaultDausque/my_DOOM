@@ -33,6 +33,7 @@
 # define A_KEY 97
 # define S_KEY 115
 # define D_KEY 100
+# define ESC_KEY 65307
 #endif
 
 typedef float   f32;
@@ -74,12 +75,14 @@ typedef struct keys_s
 
 // utils
 char*	get_map_line(char* file);
-int		ft_close(data_t *data);
-void	key_press(int keycode, keys_t* keys);
-void	key_rlse(int keycode, keys_t* keys);
+void	ft_close(int code, data_t *data);
+int		key_press(int keycode, keys_t* keys);
+int		key_rlse(int keycode, keys_t* keys);
+void	init_keys(keys_t* keys);
 
 // raycasting
 int		init_window(data_t *data);
 void	init_game(data_t *data);
+int		key_hook(map_t *map, keys_t *keys);
 
 #endif

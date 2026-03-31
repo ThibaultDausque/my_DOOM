@@ -9,6 +9,7 @@
 #define PI_4 (PI / 4.0f)
 
 map_t	map;
+keys_t	keys;
 
 void	init_game(data_t *data)
 {
@@ -140,21 +141,22 @@ static int raycasting(data_t *data)
 		int		end = drawEnd;
 		while (start < end) mlx_put_pxl(data, x, start++, rgb);
 	}
+	key_hook(&map, &keys);
 	mlx_put_image_to_window(data->mlx, data->mlx_win, data->img, 0, 0);
 	mlx_destroy_image(data->mlx, data->img);
 	return 1;
 }
 
-int	key_hook(int keycode, map_t *map, keys_t *keys)
+int	key_hook(map_t *map, keys_t *keys)
 {
 	f64		oldDirX;
 	f64		oldPlaneX;
-	f64		v = 0.05; // move speed
-	f64		r = 0.05; // rotation speed
+	f32		v = 2.0f * 0.016f; // move speed
+	f32		r = 1.5f * 0.016f; // rotation speed
 	//f64		mapX_max = 3;
 	//f64		mapY_max = 3;
-
-	if (keycode == W_KEY) // straight
+	
+	if (keys->w) // straight
 	{
 		if (worldMap[(int)(map->posX + map->dirX*v)][(int)map->posY] == 0)
 			map->posX += map->dirX * v;
@@ -162,7 +164,7 @@ int	key_hook(int keycode, map_t *map, keys_t *keys)
 		if (worldMap[(int)(map->posX)][(int)(map->posY + map->dirY*v)] == 0)
 			map->posY += map->dirY * v;
 	}
-	else if (keycode == S_KEY) // back
+	else if (keys->s) // back
 	{
 		if (!worldMap[(int)(map->posX - map->dirX*v)][(int)map->posY])
 			map->posX -= map->dirX * v;
@@ -170,7 +172,7 @@ int	key_hook(int keycode, map_t *map, keys_t *keys)
 		if (!worldMap[(int)map->posX][(int)(map->posY - map->dirY*v)])
 			map->posY -= map->dirY * v;
 	}
-	else if (keycode == D_KEY) // right
+	else if (keys->d) // right
 	{
 		oldDirX = map->dirX;
 		map->dirX = map->dirX * cos(-r) - map->dirY * sin(-r);
@@ -179,7 +181,7 @@ int	key_hook(int keycode, map_t *map, keys_t *keys)
 		map->planeX = map->planeX * cos(-r) - map->planeY * sin(-r);
 		map->planeY = oldPlaneX * sin(-r) + map->planeY * cos(-r);
 	}
-	else if (keycode == A_KEY) // left
+	else if (keys->a) // left
 	{
 		oldDirX = map->dirX;
 		map->dirX = map->dirX * cos(r) - map->dirY * sin(r);
@@ -189,28 +191,30 @@ int	key_hook(int keycode, map_t *map, keys_t *keys)
 		map->planeY = oldPlaneX * sin(r) + map->planeY * cos(r);
 	}
 
-	printf("dir X: %f\n", map->dirX);
-	printf("dir Y: %f\n", map->dirY);
+	// printf("dir X: %f\n", map->dirX);
+	// printf("dir Y: %f\n", map->dirY);
 
-	printf("pos X: %f\n", map->posX);
-	printf("pos Y: %f\n", map->posY);
+	// printf("pos X: %f\n", map->posX);
+	// printf("pos Y: %f\n", map->posY);
 
 	return 0;
 }
 
 int	init_window(data_t *data)
 {
+	init_keys(&keys);
 	data->mlx = mlx_init();
 	data->mlx_win = mlx_new_window(data->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "Doom");
+
 	#ifdef __APPLE__
 		mlx_hook(data->mlx_win, KEY_PRESS, 0, key_hook, &map);
 	#else
-		mlx_key_hook(data->mlx_win, key_hook, &map);
+		mlx_hook(data->mlx_win, KEY_PRESS, 1L<<0, key_press, &keys);
+		mlx_hook(data->mlx_win, KEY_RLSE, 1L<<1, key_rlse, &keys);
 	#endif
-	mlx_hook(data->mlx_win, KEY_PRESS, 0, key_hook, &map);
 
 	mlx_loop_hook(data->mlx, raycasting, data);
-	//mlx_hook(data->mlx_win, 2, 1L<<0, ft_close, data);
 	mlx_loop(data->mlx);
+
 	return 1;
 }
