@@ -1,10 +1,5 @@
 #include <doom.h>
 
-// int map_dims(int fd)
-// {
-
-// }
-
 void    init_keys(keys_t* keys)
 {
     keys->w = 0;
@@ -31,31 +26,36 @@ int key_rlse(int keycode, keys_t* keys)
     return keycode;
 }
 
-char* get_map_line(char *file)
+void    extract_line(char *line)
 {
-    unsigned int    fd;
-    char            *map;
-    int             r;
+    int     i = 0;
+    int     j = 0;
+    char    map[MAP_SIZE][MAP_SIZE];
 
-    map = (char*)malloc((MAP_SIZE + 1) * sizeof(char));
-    if (!map)
+    while (line[i] && line[i] != '\n')
+        i++;
+    // substract the line and cat int **map
+}
+
+void get_map_line(char *file)
+{
+    char    line[MAP_SIZE];
+    int     fd;
+    int     r;
+    int     n_bytes = sizeof(line);
+
+    fd = open(file, O_RDONLY);
+    if (!fd)
     {
-        printf("%s\n", MAP_ERR);
+        printf("Error while opening the map.\n");
         exit(0);
     }
-    if (!(fd = open(file, O_RDONLY)))
-    {
-        printf("%s\n", MAP_ERR);
-        exit(0);
-    }
-    r = read(fd, map, MAP_SIZE);
-    if (!r)
-    {
-        printf("%s\n", MAP_ERR);
-        exit(0);
-    }
-    printf("line:\n%s", map);
-    return map;
+    r = read(fd, &line, n_bytes);
+    printf("bytes read: %d\n", r);
+    // while (r > 0)
+    //     r += read(fd, &map, n_bytes);
+    line[r] = '\0';
+    printf("%s\n", line);
 }
 
 void ft_close(int code, data_t *data)

@@ -75,7 +75,7 @@ typedef struct keys_s
 }	keys_t;
 
 // utils
-char*	get_map_line(char* file);
+void	get_map_line(char* file);
 void	ft_close(int code, data_t *data);
 int		key_press(int keycode, keys_t* keys);
 int		key_rlse(int keycode, keys_t* keys);
